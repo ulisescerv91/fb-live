@@ -1,42 +1,120 @@
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 
 export const LiveChat = () => {
   const [msg, setMsg] = useState("");
-  useEffect(() => {
-    const sse = new EventSource(
-      "https://streaming-graph.facebook.com/548944877017816/live_comments?access_token=EAAQSKhob9GgBAMyWZAY82CQcSSgQpJ4ikpMWm1OwQlO5HNYJDUxkcTROPltoz9vMWKmMCXNcZB43DlooHZCvXoyjJbeVJDRS7ENsEeYnKzQPYTRNLcCw8psw6ZAzczICY4pjSUz3FRG0pzGxZBdv2IH3S46ucQDJVeG3dIZAX5zaPRbqOnZAkzuv0hoNvGDtezJpJosMZCnArQZDZD&comment_rate=ten_per_second&=fields=from{name,id},message"
-    );
-    sse.onopen = (e) => console.log("on open", e);
 
-    sse.onmessage = (e) => {
-      console.log("data", e.data);
-      const data = JSON.parse(e.data);
-      setMsg(data.message);
-    };
-  }, []);
+  const url =
+    "https://streaming-graph.facebook.com/1409306272914086/live_comments?access_token=EAAQSKhob9GgBAIyZB9ZBVee3p17RWTmLZB2ykNfNehmGAtqOwOrfxv6WGChx3ZAWQGxeCMFWMFBtW0ZBZAZB5n8QT9AMQXCHEhuowZCp3tTIZAdMC6pE5wPwM57x4G8wtyQzwrKvv5yDHhgN3tZCZARbFSjbVgxiitxOwX00wzD0KTGOkJnkFKqIR8Qalin1FPQtzmGtD9b9XOZAJp5qX5m4XPYiFNqAlUL3Aq1NEZC9fdu1iJYAzw6HaYPZA5&comment_rate=ten_per_second&=fields=from{name,id},message";
+
   useEffect(() => {
-    var canvas = document.getElementById("cuadricula");
-    var context = canvas.getContext("2d");
-    context.lineWidth = 1;
-    context.strokeStyle = "#000000";
-    for (var x = 1; x < 502; x += 100) {
-      context.moveTo(x, 0);
-      context.lineTo(x, 502);
-    }
-    for (var y = 1; y < 502; y += 100) {
-      context.moveTo(0, y);
-      context.lineTo(502, y);
-    }
-    context.stroke();
+    // const sse = new EventSource(url);
+    // sse.onopen = (e) => console.log("on open", e);
+    // sse.onmessage = (e) => {
+    //   console.log("Data -> ", e.data);
+    //   const data = JSON.parse(e.data);
+    //   setMsg(data.message);
+    // };
   }, []);
+
+  useEffect(() => {
+    const colors = [
+      "blue",
+      "red",
+      "yellow",
+      "green",
+      "purple",
+      "pink",
+      "tomato",
+      "black",
+    ];
+    if (msg !== "") {
+      const min = Math.ceil(1);
+      const max = Math.floor(15);
+      const number = Math.floor(Math.random() * (max - min) + min);
+
+      const minL = Math.ceil(97);
+      const maxL = Math.floor(114);
+      const letter = Math.floor(Math.random() * (maxL - minL) + minL);
+      const letra = String.fromCharCode(letter);
+
+      const elm = document.querySelector(`#${letra + number}`);
+
+      const minColor = Math.ceil(1);
+      const maxColor = Math.floor(8);
+      const colorIndex = Math.floor(
+        Math.random() * (maxColor - minColor) + minColor
+      );
+
+      elm.style.backgroundColor = colors[colorIndex];
+    }
+  }, [msg]);
+
+  const letras = [];
+  for (let i = 97; i < 115; i++) {
+    letras.push(String.fromCharCode(i));
+  }
 
   return (
     <div className="App">
-      <div>{msg}</div>
+      <div>
+        <b>{msg}</b>
+      </div>
 
-      <canvas id="cuadricula" width="502" height="502"></canvas>
+      <Cuadricula>
+        {letras.map((letra, i) => {
+          return (
+            <div className="d-flex position-relative" key={i}>
+              <LetraReferencia>{letra}</LetraReferencia>
+              {[...Array(15)].map((e, i) => (
+                <Cuadro letter={letra} number={i + 1} key={i}></Cuadro>
+              ))}
+            </div>
+          );
+        })}
+      </Cuadricula>
     </div>
   );
 };
 
+const NumeroRef = styled.div`
+  position: absolute;
+  top: -25px;
+`;
+const LetraReferencia = styled.div`
+  position: absolute;
+  top: 2px;
+  left: -20px;
+`;
+
+const Cuadro = ({ letter, number }) => {
+  const isLetterA = letter === "a";
+  if (isLetterA)
+    return (
+      <CuadroContainer id={`${letter + number}`}>
+        <NumeroRef>{number}</NumeroRef>
+      </CuadroContainer>
+    );
+
+  return <CuadroContainer id={`${letter + number}`} />;
+};
+
+const CuadroContainer = styled.div`
+  border: 1px solid black;
+  height: 40px;
+  width: calc(600px / 15);
+  position: relative;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+`;
+
+const Cuadricula = styled.div`
+  width: 600px;
+  margin-left: 100px;
+  margin-top: 80px;
+`;
+
 //https://developers.facebook.com/tools/explorer/1145871942808680/?method=GET&path=132412320551814%2Fpicture&version=v14.0
+
+//https://developers.facebook.com/docs/graph-api/guides
